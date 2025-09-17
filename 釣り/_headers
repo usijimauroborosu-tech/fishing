@@ -1,0 +1,75 @@
+# Netlify _headers ファイル
+# このファイルをプロジェクトのルートディレクトリに配置してください
+
+# 全体的なセキュリティヘッダー
+/*
+  # Content Security Policy - スクリプトとスタイルの実行を制御
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; media-src 'self'; frame-src 'none'; base-uri 'self'; form-action 'self'
+  
+  # XSSプロテクション
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  
+  # リファラーポリシー
+  Referrer-Policy: strict-origin-when-cross-origin
+  
+  # パーミッションポリシー - デバイスアクセスを制限
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), speaker=(), notifications=(), push=(), vibrate=()
+  
+  # HTTPSへの強制リダイレクト (HSTS)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  
+  # キャッシュ制御
+  Cache-Control: public, max-age=3600, must-revalidate
+  
+  # サーバー情報の隠蔽
+  Server: ""
+  X-Powered-By: ""
+
+# HTMLファイル用の追加設定
+/*.html
+  # HTMLファイルは短時間でキャッシュ
+  Cache-Control: public, max-age=300, must-revalidate
+  
+# 画像ファイル用の設定
+/*.jpg
+  Cache-Control: public, max-age=2592000
+  
+/*.jpeg
+  Cache-Control: public, max-age=2592000
+  
+/*.png
+  Cache-Control: public, max-age=2592000
+  
+/*.gif
+  Cache-Control: public, max-age=2592000
+  
+/*.webp
+  Cache-Control: public, max-age=2592000
+
+# CSS/JSファイル用の設定
+/*.css
+  Cache-Control: public, max-age=604800
+  
+/*.js
+  Cache-Control: public, max-age=604800
+
+# フォントファイル用の設定
+/*.woff
+  Cache-Control: public, max-age=2592000
+  
+/*.woff2
+  Cache-Control: public, max-age=2592000
+  
+/*.ttf
+  Cache-Control: public, max-age=2592000
+
+# 特定のセキュリティが重要なファイル
+/index.html
+  # ゲームファイルは検索エンジンにインデックスされないように
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, notranslate, noimageindex
+  
+  # 追加のセキュリティヘッダー
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
