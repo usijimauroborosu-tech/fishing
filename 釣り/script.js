@@ -460,6 +460,12 @@
             gameOverFish.className = 'game-over-fish';
             gameOverFish.src = fishImageSrc;
             gameOverFish.alt = altText;
+             
+            // 画面サイズの5分の1に設定
+　　　　　　　　const screenWidth = window.innerWidth;
+　　　　　　　　const fishSize = screenWidth / 5;
+　　　　　　　　gameOverFish.style.width = fishSize + 'px';
+　　　　　　　　gameOverFish.style.height = 'auto';   
             
             // 画像が読み込めない場合のフォールバック（スコア別の色）
             gameOverFish.onerror = function() {
@@ -576,4 +582,5 @@
                     }
                 }
             }
+
         });
