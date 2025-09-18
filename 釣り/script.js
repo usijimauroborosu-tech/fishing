@@ -5,17 +5,19 @@
             fishCaught: {},
             gameTimer: null,
             spawnTimer: null,
-            circleTimer: null
+            circleTimer: null,
+            fishTimers: [], // 魚のタイマーIDを保存
+            effectTimers: [] // エフェクトのタイマーIDを保存
         };
 
         const fishTypes = [
-            { name: 'キンメダイ', points: 20, rare: false, image: 'kinmedai.png', speed: 4000 },
+            { name: 'キンメダイ', points: 10, rare: false, image: 'kinmedai.png', speed: 4000 },
             { name: 'サバ', points: 15, rare: false, image: 'saba.png', speed: 3500 },
-            { name: 'イワシ', points: 10, rare: false, image: 'iwashi.png', speed: 3000 },
+            { name: 'イワシ', points: 8, rare: false, image: 'iwashi.png', speed: 3000 },
             { name: 'タイ', points: 25, rare: false, image: 'tai.png', speed: 5000 },
             { name: 'ヒラメ', points: 30, rare: false, image: 'hirame.png', speed: 4000 },
-            { name: 'カニ', points: 40, rare: false, image: 'kani.png', speed: 8000 },
-            { name: 'フグ', points: 10, rare: false, image: 'hugu.png', speed: 7000 },
+            { name: 'カニ', points: 20, rare: false, image: 'kani.png', speed: 8000 },
+            { name: 'フグ', points: 12, rare: false, image: 'hugu.png', speed: 7000 },
             { name: 'イカ', points: 18, rare: false, image: 'ika.png', speed: 4500 },
             { name: 'タコ', points: 22, rare: false, image: 'tako.png', speed: 5500 },
             { name: 'マグロ', points: 100, rare: true, image: 'maguro.png', speed: 2000 }
@@ -105,42 +107,8 @@
             
             // 魚を曲線的に移動（レア魚は直線移動）
             let startTime = Date.now();
+            let animationId = null; // アニメーションIDを保存
             const initialY = parseFloat(fish.style.top);
-            
-            if (selectedFish.rare) {
-                // レア魚は直線移動（右から左へ）
-                setTimeout(() => {
-                    fish.style.transition = `all ${selectedFish.speed}ms linear`;
-                    fish.style.left = '-120px';
-                }, 100);
-            } else {
-                // 通常魚は曲線移動（sin波を使った自然な動き）
-                const waveAmplitude = 30 + Math.random() * 40; // 波の振幅
-                const waveFrequency = 0.002 + Math.random() * 0.003; // 波の周波数
-                
-                function animateFish() {
-                    const currentTime = Date.now();
-                    const elapsed = currentTime - startTime;
-                    const progress = elapsed / selectedFish.speed;
-                    
-                    if (progress >= 1 || !fish.parentNode) return;
-                    
-                    // 水平移動（右から左へ）
-                    const newLeft = container.clientWidth - (container.clientWidth + 240) * progress;
-                    fish.style.left = newLeft + 'px';
-                    
-                    // 垂直方向の波状動き
-                    const waveY = Math.sin(elapsed * waveFrequency) * waveAmplitude;
-                    fish.style.top = (initialY + waveY) + 'px';
-                    
-                    requestAnimationFrame(animateFish);
-                }
-                
-                setTimeout(() => {
-                    fish.style.transition = 'none'; // transitionを無効化してアニメーションを制御
-                    animateFish();
-                }, 100);
-            }
             
             // 魚をクリック・タップした時の処理
             function handleFishTouch(e) {
@@ -176,23 +144,112 @@
                     
                     document.getElementById('gameContainer').appendChild(missEffect);
                     
-                    setTimeout(() => {
+                    // エフェクトタイマーを記録して管理
+                    const effectTimerId = setTimeout(() => {
                         if (missEffect.parentNode) {
                             missEffect.parentNode.removeChild(missEffect);
                         }
+                        // タイマーIDを配列から削除
+                        const index = gameState.effectTimers.indexOf(effectTimerId);
+                        if (index > -1) {
+                            gameState.effectTimers.splice(index, 1);
+                        }
                     }, 1000);
+                    gameState.effectTimers.push(effectTimerId);
                 }
             }
             
             fish.addEventListener('click', handleFishTouch);
             fish.addEventListener('touchstart', handleFishTouch);
             
-            // 魚を自動削除（速度に応じて調整）
-            setTimeout(() => {
+            // 魚の削除処理を改善
+            let fishDeletionTimerId = null;
+            function removeFish() {
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                if (fishDeletionTimerId) {
+                    clearTimeout(fishDeletionTimerId);
+                    const index = gameState.fishTimers.indexOf(fishDeletionTimerId);
+                    if (index > -1) {
+                        gameState.fishTimers.splice(index, 1);
+                    }
+                    fishDeletionTimerId = null;
+                }
                 if (fish.parentNode) {
+                    // イベントリスナーを削除
+                    fish.removeEventListener('click', handleFishTouch);
+                    fish.removeEventListener('touchstart', handleFishTouch);
                     fish.parentNode.removeChild(fish);
                 }
-            }, selectedFish.speed + 1000);
+            }
+            
+            if (selectedFish.rare) {
+                // レア魚は直線移動（右から左へ）
+                const moveTimerId = setTimeout(() => {
+                    if (!fish.parentNode) return;
+                    fish.style.transition = `all ${selectedFish.speed}ms linear`;
+                    fish.style.left = '-120px';
+                    // タイマーIDを配列から削除
+                    const index = gameState.fishTimers.indexOf(moveTimerId);
+                    if (index > -1) {
+                        gameState.fishTimers.splice(index, 1);
+                    }
+                }, 100);
+                gameState.fishTimers.push(moveTimerId);
+                
+                // レア魚の削除タイマー
+                fishDeletionTimerId = setTimeout(removeFish, selectedFish.speed + 1000);
+                gameState.fishTimers.push(fishDeletionTimerId);
+            } else {
+                // 通常魚は曲線移動（sin波を使った自然な動き）
+                const waveAmplitude = 30 + Math.random() * 40; // 波の振幅
+                const waveFrequency = 0.002 + Math.random() * 0.003; // 波の周波数
+                
+                function animateFish() {
+                    if (!fish.parentNode || !gameState.isPlaying) {
+                        removeFish();
+                        return;
+                    }
+                    
+                    const currentTime = Date.now();
+                    const elapsed = currentTime - startTime;
+                    const progress = elapsed / selectedFish.speed;
+                    
+                    if (progress >= 1) {
+                        removeFish();
+                        return;
+                    }
+                    
+                    // 水平移動（右から左へ）
+                    const newLeft = container.clientWidth - (container.clientWidth + 240) * progress;
+                    fish.style.left = newLeft + 'px';
+                    
+                    // 垂直方向の波状動き
+                    const waveY = Math.sin(elapsed * waveFrequency) * waveAmplitude;
+                    fish.style.top = (initialY + waveY) + 'px';
+                    
+                    animationId = requestAnimationFrame(animateFish);
+                }
+                
+                const animationStartTimerId = setTimeout(() => {
+                    if (fish.parentNode) {
+                        fish.style.transition = 'none'; // transitionを無効化してアニメーションを制御
+                        animateFish();
+                    }
+                    // タイマーIDを配列から削除
+                    const index = gameState.fishTimers.indexOf(animationStartTimerId);
+                    if (index > -1) {
+                        gameState.fishTimers.splice(index, 1);
+                    }
+                }, 100);
+                gameState.fishTimers.push(animationStartTimerId);
+                
+                // 通常魚の削除タイマー（フォールバック）
+                fishDeletionTimerId = setTimeout(removeFish, selectedFish.speed + 1000);
+                gameState.fishTimers.push(fishDeletionTimerId);
+            }
         }
 
         function isFishInCircle(fishElement) {
@@ -251,15 +308,25 @@
             
             document.getElementById('gameContainer').appendChild(effect);
             
-            setTimeout(() => {
-                if (effect.parentNode) {
+            // エフェクトを確実に削除（タイマー管理）
+            const effectTimerId = setTimeout(() => {
+                if (effect && effect.parentNode) {
                     effect.parentNode.removeChild(effect);
                 }
+                // タイマーIDを配列から削除
+                const index = gameState.effectTimers.indexOf(effectTimerId);
+                if (index > -1) {
+                    gameState.effectTimers.splice(index, 1);
+                }
             }, 1000);
+            gameState.effectTimers.push(effectTimerId);
             
-            // 魚を削除
-            if (fishElement.parentNode) {
-                fishElement.parentNode.removeChild(fishElement);
+            // 魚を確実に削除（イベントリスナーも含めて）
+            if (fishElement && fishElement.parentNode) {
+                // すべてのイベントリスナーをクローンで削除
+                const newFish = fishElement.cloneNode(true);
+                fishElement.parentNode.replaceChild(newFish, fishElement);
+                newFish.parentNode.removeChild(newFish);
             }
             
             updateScore();
@@ -284,6 +351,10 @@
             gameState.timeLeft = 60;
             gameState.fishCaught = {};
             
+            // タイマー配列をリセット
+            gameState.fishTimers = [];
+            gameState.effectTimers = [];
+            
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('gameOver').style.display = 'none';
             
@@ -295,24 +366,49 @@
                 // 同時に3-5匹の魚を出現させる
                 const fishCount = Math.floor(Math.random() * 3) + 3;
                 for (let i = 0; i < fishCount; i++) {
-                    setTimeout(() => spawnFish(), i * 200);
+                    const spawnTimerId = setTimeout(() => spawnFish(), i * 200);
+                    gameState.fishTimers.push(spawnTimerId);
                 }
             }, 2000);
-            gameState.circleTimer = setInterval(moveCircle, 10000);
+            gameState.circleTimer = setInterval(moveCircle, 5000);
         }
 
         function endGame() {
             gameState.isPlaying = false;
             
+            // すべてのタイマーをクリア
             clearInterval(gameState.gameTimer);
             clearInterval(gameState.spawnTimer);
             clearInterval(gameState.circleTimer);
             
-            // 残っている魚を削除
+            // 魚関連のすべてのタイマーをクリア
+            gameState.fishTimers.forEach(timerId => {
+                clearTimeout(timerId);
+            });
+            gameState.fishTimers = [];
+            
+            // エフェクト関連のすべてのタイマーをクリア
+            gameState.effectTimers.forEach(timerId => {
+                clearTimeout(timerId);
+            });
+            gameState.effectTimers = [];
+            
+            // 残っている魚を強制削除（メモリリーク防止）
             const fishes = document.querySelectorAll('.fish');
             fishes.forEach(fish => {
                 if (fish.parentNode) {
-                    fish.parentNode.removeChild(fish);
+                    // イベントリスナーを含めて完全削除
+                    const clonedFish = fish.cloneNode(true);
+                    fish.parentNode.replaceChild(clonedFish, fish);
+                    clonedFish.parentNode.removeChild(clonedFish);
+                }
+            });
+            
+            // 残っているエフェクトも削除
+            const effects = document.querySelectorAll('.catch-effect');
+            effects.forEach(effect => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
                 }
             });
             
@@ -338,10 +434,71 @@
             summaryText += '</div>';
             
             summary.innerHTML = summaryText;
+            
+            // スコアによって画像を選択
+            let fishImageSrc, fishColor, altText;
+            if (gameState.score >= 300) {
+                // 高スコア（300点以上）
+                fishImageSrc = 'high_score_fish.png';
+                fishColor = '#FFD700'; // 金色
+                altText = '高得点魚';
+            } else if (gameState.score >= 100) {
+                // 中スコア（100-299点）
+                fishImageSrc = 'mid_score_fish.png';
+                fishColor = '#C0C0C0'; // 銀色
+                altText = '中得点魚';
+            } else {
+                // 低スコア（99点以下）
+                fishImageSrc = 'low_score_fish.png';
+                fishColor = '#CD7F32'; // 銅色
+                altText = '頑張れ魚';
+            }
+            
+            // ゲーム終了画面に泳ぐ魚を追加
+            const gameOverScreen = document.getElementById('gameOver');
+            const gameOverFish = document.createElement('img');
+            gameOverFish.className = 'game-over-fish';
+            gameOverFish.src = fishImageSrc;
+            gameOverFish.alt = altText;
+            
+            // 画像が読み込めない場合のフォールバック（スコア別の色）
+            gameOverFish.onerror = function() {
+                console.log(`ゲームオーバー魚画像が見つかりません: ${fishImageSrc}`);
+                // SVGでフォールバック魚を作成（スコア別の色）
+                this.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 50">
+                    <ellipse cx="30" cy="25" rx="25" ry="15" fill="${fishColor}"/>
+                    <polygon points="55,25 70,15 70,35" fill="${fishColor}"/>
+                    <polygon points="10,20 0,10 5,25 0,40 10,30" fill="${fishColor}"/>
+                    <circle cx="20" cy="20" r="3" fill="black"/>
+                    <circle cx="18" cy="18" r="1" fill="white"/>
+                    ${gameState.score >= 300 ? '<circle cx="25" cy="25" r="2" fill="white" opacity="0.8"/>' : ''}
+                </svg>`;
+            };
+            
+            // 「ゲーム終了！」テキストと同じ高さに配置
+            const gameOverTitle = gameOverScreen.querySelector('h2');
+            const titleRect = gameOverTitle.getBoundingClientRect();
+            const screenRect = gameOverScreen.getBoundingClientRect();
+            const relativeTop = titleRect.top - screenRect.top;
+            
+            gameOverFish.style.position = 'absolute';
+            gameOverFish.style.top = relativeTop + 'px';
+            
+            gameOverScreen.appendChild(gameOverFish);
             document.getElementById('gameOver').style.display = 'flex';
         }
 
         function resetGame() {
+            // ゲーム終了画面の泳ぐ魚を削除
+            const gameOverFish = document.querySelector('.game-over-fish');
+            if (gameOverFish) {
+                gameOverFish.remove();
+            }
+            
+            // すべてのタイマーをリセット
+            gameState.fishTimers = [];
+            gameState.effectTimers = [];
+            
             document.getElementById('startScreen').style.display = 'flex';
             document.getElementById('gameOver').style.display = 'none';
             
