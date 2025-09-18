@@ -370,7 +370,7 @@
                     gameState.fishTimers.push(spawnTimerId);
                 }
             }, 2000);
-            gameState.circleTimer = setInterval(moveCircle, 5000);
+            gameState.circleTimer = setInterval(moveCircle, 10000);
         }
 
         function endGame() {
@@ -437,18 +437,18 @@
             
             // スコアによって画像を選択
             let fishImageSrc, fishColor, altText;
-            if (gameState.score >= 300) {
-                // 高スコア（300点以上）
+            if (gameState.score >= 1000) {
+                // 高スコア（1000点以上）
                 fishImageSrc = 'high_score_fish.png';
                 fishColor = '#FFD700'; // 金色
                 altText = '高得点魚';
-            } else if (gameState.score >= 100) {
-                // 中スコア（100-299点）
+            } else if (gameState.score >= 500) {
+                // 中スコア（500-1000点）
                 fishImageSrc = 'mid_score_fish.png';
                 fishColor = '#C0C0C0'; // 銀色
                 altText = '中得点魚';
             } else {
-                // 低スコア（99点以下）
+                // 低スコア（499点以下）
                 fishImageSrc = 'low_score_fish.png';
                 fishColor = '#CD7F32'; // 銅色
                 altText = '頑張れ魚';
