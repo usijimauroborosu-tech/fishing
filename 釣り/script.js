@@ -204,8 +204,8 @@
                 gameState.fishTimers.push(fishDeletionTimerId);
             } else {
                 // 通常魚は曲線移動（sin波を使った自然な動き）
-                const waveAmplitude = 20 + Math.random() * 20; // 波の振幅
-                const waveFrequency = 0.003 + Math.random() * 0.003; // 波の周波数
+                const waveAmplitude = 15 + Math.random() * 20; // 波の振幅
+                const waveFrequency = 0.004 + Math.random() * 0.004; // 波の周波数
                 
                 function animateFish() {
                     if (!fish.parentNode || !gameState.isPlaying) {
@@ -584,6 +584,7 @@
             }
 
         });
+
 
 
 
