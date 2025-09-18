@@ -204,7 +204,7 @@
                 gameState.fishTimers.push(fishDeletionTimerId);
             } else {
                 // 通常魚は曲線移動（sin波を使った自然な動き）
-                const waveAmplitude = 30 + Math.random() * 30; // 波の振幅
+                const waveAmplitude = 20 + Math.random() * 20; // 波の振幅
                 const waveFrequency = 0.002 + Math.random() * 0.003; // 波の周波数
                 
                 function animateFish() {
@@ -461,9 +461,9 @@
             gameOverFish.src = fishImageSrc;
             gameOverFish.alt = altText;
              
-            // 画面サイズの4分の1に設定
+            // 画面サイズの3分の1に設定
 　　　　　　　　const screenWidth = window.innerWidth;
-　　　　　　　　const fishSize = screenWidth / 4;
+　　　　　　　　const fishSize = screenWidth /3;
 　　　　　　　　gameOverFish.style.width = fishSize + 'px';
 　　　　　　　　gameOverFish.style.height = 'auto';   
             
@@ -584,4 +584,5 @@
             }
 
         });
+
 
