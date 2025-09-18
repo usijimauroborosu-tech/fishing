@@ -205,7 +205,7 @@
             } else {
                 // 通常魚は曲線移動（sin波を使った自然な動き）
                 const waveAmplitude = 20 + Math.random() * 20; // 波の振幅
-                const waveFrequency = 0.002 + Math.random() * 0.003; // 波の周波数
+                const waveFrequency = 0.001 + Math.random() * 0.015; // 波の周波数
                 
                 function animateFish() {
                     if (!fish.parentNode || !gameState.isPlaying) {
@@ -584,5 +584,6 @@
             }
 
         });
+
 
 
