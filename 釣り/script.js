@@ -439,17 +439,17 @@
             let fishImageSrc, fishColor, altText;
             if (gameState.score >= 1000) {
                 // 高スコア（1000点以上）
-                fishImageSrc = 'high_score_fish.png';
+                fishImageSrc = 'high_score.png';
                 fishColor = '#FFD700'; // 金色
                 altText = '高得点魚';
             } else if (gameState.score >= 500) {
                 // 中スコア（500-1000点）
-                fishImageSrc = 'mid_score_fish.png';
+                fishImageSrc = 'mid_score.png';
                 fishColor = '#C0C0C0'; // 銀色
                 altText = '中得点魚';
             } else {
                 // 低スコア（499点以下）
-                fishImageSrc = 'low_score_fish.png';
+                fishImageSrc = 'low_score.png';
                 fishColor = '#CD7F32'; // 銅色
                 altText = '頑張れ魚';
             }
