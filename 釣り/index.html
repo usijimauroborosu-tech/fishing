@@ -173,6 +173,26 @@
             color: #FFD700;
             margin: 5px 0;
         }
+
+        .game-over-fish {
+            position: absolute;
+            width: 80px;
+            height: auto;
+            animation: swimAcross 8s linear infinite;
+            z-index: 1001;
+        }
+        
+        @keyframes swimAcross {
+            0% { 
+                left: 100%;
+                opacity: 1;
+            }
+            100% { 
+                left: -100px;
+                opacity: 1;
+            }
+        }
+
     </style>
         <!-- Google Analytics（個人情報送信なしの最小限設定） -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-DCJSGP8M2C"> 
@@ -196,6 +216,7 @@
             <h1>🎣 魚釣りゲーム</h1>
             <div class="instructions">
                 丸枠の中に入った魚をタップして釣り上げよう！<br>
+                10秒ごとに丸枠が移動するよ<br>
                 レア魚は高得点！60秒でどれだけ釣れるかな？
             </div>
             <button class="start-btn" onclick="startGame()">ゲームスタート</button>
