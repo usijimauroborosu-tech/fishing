@@ -45,9 +45,9 @@
             
             const maxX = container.clientWidth - 140;
             const containerHeight = container.clientHeight;
-            const topQuarter = containerHeight / 4; // 上部1/4を除外
-            const maxY = containerHeight - 200;
-            const minY = topQuarter + 50; // 上部1/4より下に配置
+            const topQuarter = containerHeight / 8; // 上部1/8を除外
+            const maxY = containerHeight - 150;
+            const minY = topQuarter + 30; // 上部1/8より下に配置
             
             const newX = Math.random() * maxX;
             const newY = minY + Math.random() * (maxY - minY);
@@ -95,9 +95,9 @@
             
             // 魚の初期位置（画面右側から出現、上部1/4を除外）
             const containerHeight = container.clientHeight;
-            const topQuarter = containerHeight / 4; // 上部1/4に変更
+            const topQuarter = containerHeight / 8; // 上部1/8に変更
             const maxY = containerHeight - 150;
-            const minY = topQuarter + 50; // 上部1/4より下から出現
+            const minY = topQuarter + 30; // 上部1/8より下から出現
             
             fish.style.top = minY + Math.random() * (maxY - minY) + 'px';
             fish.style.left = container.clientWidth + 'px'; // 常に右側から出現
@@ -473,17 +473,21 @@
             gameOverFish.src = fishImageSrc;
             gameOverFish.alt = altText;
              
-            // デバイス別に画面サイズを調整
+            // デバイス別に画面サイズを調整
 　　　　　　 const screenWidth = window.innerWidth;
 　　　　　　　let fishSize;
 
 　　　　　　　if (screenWidth <= 768) {
-   　　　　 // スマホ・小型タブレット: 画面幅の2分の1
-    　　　　fishSize = screenWidth / 2;
+   　　　　 // スマホ・小型タブレット: 画面幅の2分の1
+    　　　　fishSize = screenWidth / 2;
 　　　　　　} else {
-    　　　　// タブレット・PC: 画面幅の5分の1
-    　　　　fishSize = screenWidth / 5;
+    　　　　// タブレット・PC: 画面幅の7分の1に縮小
+    　　　　fishSize = screenWidth / 7;
 　　　　　　}
+            
+            // ★★★ 追加: 計算したサイズを画像の幅に適用します ★★★
+            gameOverFish.style.width = fishSize + 'px';
+
             
             // 画像が読み込めない場合のフォールバック（スコア別の色）
             gameOverFish.onerror = function() {
@@ -602,4 +606,5 @@
             }
 
         });
+
 
