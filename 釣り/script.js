@@ -11,17 +11,23 @@
         };
 
         const fishTypes = [
-            { name: 'キンメダイ', points: 10, rare: false, image: 'kinmedai.png', speed: 4000 },
+            { name: 'キンメダイ', points: 30, rare: false, image: 'kinmedai.png', speed: 4000 },
             { name: 'サバ', points: 15, rare: false, image: 'saba.png', speed: 3500 },
-            { name: 'イワシ', points: 8, rare: false, image: 'iwashi.png', speed: 3000 },
-            { name: 'タイ', points: 25, rare: false, image: 'tai.png', speed: 5000 },
-            { name: 'ヒラメ', points: 30, rare: false, image: 'hirame.png', speed: 4000 },
+            { name: 'アジ', points: 30, rare: false, image: 'aji.png', speed: 3000 },
+            { name: 'タイ', points: 20, rare: false, image: 'tai.png', speed: 5000 },
+            { name: 'カマス', points: 30, rare: false, image: 'kamasu.png', speed: 4000 },
             { name: 'カニ', points: 20, rare: false, image: 'kani.png', speed: 8000 },
-            { name: 'フグ', points: 12, rare: false, image: 'hugu.png', speed: 7000 },
-            { name: 'イカ', points: 18, rare: false, image: 'ika.png', speed: 4500 },
-            { name: 'タコ', points: 22, rare: false, image: 'tako.png', speed: 5500 },
-            { name: 'マグロ', points: 100, rare: true, image: 'maguro.png', speed: 2000 }
-        ];
+            { name: 'フグ', points: 10, rare: false, image: 'hugu.png', speed: 7000 },
+            { name: 'イカ', points: 25, rare: false, image: 'ika.png', speed: 4500 },
+            { name: 'タコ', points: 15, rare: false, image: 'tako.png', speed: 5500 },
+            { name: 'マグロ', points: 100, rare: true, image: 'maguro.png', speed: 2000 },
+            { name: 'イシダイ', points: 35, rare: false, image: 'ishidai.png', speed: 3000 },
+            { name: 'マンボウ', points: 5, rare: false, image: 'manbou.png', speed: 10000 },
+            { name: 'カツオ', points: 30, rare: false, image: 'katuo.png', speed: 2500 },
+            { name: 'カワハギ', points: 20, rare: false, image: 'kawahagi.png', speed: 3000 },
+            { name: 'ブリ', points: 20, rare: false, image: 'buri.png', speed: 3000 },
+            { name: 'クエ', points: 15, rare: false, image: 'kue.png', speed: 7000 },
+ 　　　　];
 
         function createFishSVG(fishType) {
             // フォールバック用のSVG（png画像が読み込めない場合）
@@ -375,13 +381,13 @@
             
             gameState.gameTimer = setInterval(updateTimer, 1000);
             gameState.spawnTimer = setInterval(() => {
-                // 同時に3-5匹の魚を出現させる
-                const fishCount = Math.floor(Math.random() * 3) + 3;
-                for (let i = 0; i < fishCount; i++) {
-                    const spawnTimerId = setTimeout(() => spawnFish(), i * 200);
-                    gameState.fishTimers.push(spawnTimerId);
-                }
-            }, 2000);
+            // 同時に5-8匹の魚を出現させる（従来の3-5匹から増加）
+           const fishCount = Math.floor(Math.random() * 4) + 5; // 5匹から8匹
+           for (let i = 0; i < fishCount; i++) {
+           const spawnTimerId = setTimeout(() => spawnFish(), i * 150); // 間隔を150msに短縮してより多くの魚を素早く出現
+           gameState.fishTimers.push(spawnTimerId);
+           }
+           }, 2000);
             gameState.circleTimer = setInterval(moveCircle, 10000);
         }
 
@@ -427,93 +433,97 @@
             showGameOver();
         }
 
-        function showGameOver() {
-            document.getElementById('finalScore').textContent = gameState.score;
-            
-            const summary = document.getElementById('catchSummary');
-            let summaryText = '<div style="margin-top: 10px; text-align: left; max-width: 300px; max-height: 200px; overflow-y: auto;">';
-            summaryText += '<h3 style="font-size: 16px; margin: 5px 0;">釣った魚:</h3>';
-            
-            if (Object.keys(gameState.fishCaught).length === 0) {
-                summaryText += '<p style="font-size: 14px; margin: 2px 0;">魚が釣れませんでした...</p>';
-            } else {
-                for (const [fishName, count] of Object.entries(gameState.fishCaught)) {
-                    const fishType = fishTypes.find(f => f.name === fishName);
-                    const totalPoints = count * fishType.points;
-                    summaryText += `<p style="font-size: 14px; margin: 2px 0; line-height: 1.3;">${fishName}: ${count}匹 (${totalPoints}点)</p>`;
-                }
-            }
-            summaryText += '</div>';
-            
-            summary.innerHTML = summaryText;
-            
-            // スコアによって画像を選択
-            let fishImageSrc, fishColor, altText;
-            if (gameState.score >= 1000) {
-                // 高スコア（1000点以上）
-                fishImageSrc = 'high_score.png';
-                fishColor = '#FFD700'; // 金色
-                altText = '高得点魚';
-            } else if (gameState.score >= 500) {
-                // 中スコア（500-1000点）
-                fishImageSrc = 'mid_score.png';
-                fishColor = '#C0C0C0'; // 銀色
-                altText = '中得点魚';
-            } else {
-                // 低スコア（499点以下）
-                fishImageSrc = 'low_score.png';
-                fishColor = '#CD7F32'; // 銅色
-                altText = '頑張れ魚';
-            }
-            
-            // ゲーム終了画面に泳ぐ魚を追加
-            const gameOverScreen = document.getElementById('gameOver');
-            const gameOverFish = document.createElement('img');
-            gameOverFish.className = 'game-over-fish';
-            gameOverFish.src = fishImageSrc;
-            gameOverFish.alt = altText;
-             
-            // デバイス別に画面サイズを調整
-　　　　　　 const screenWidth = window.innerWidth;
-　　　　　　　let fishSize;
-
-　　　　　　　if (screenWidth <= 768) {
-   　　　　 // スマホ・小型タブレット: 画面幅の2分の1
-    　　　　fishSize = screenWidth / 2;
-　　　　　　} else {
-    　　　　// タブレット・PC: 画面幅の7分の1に縮小
-    　　　　fishSize = screenWidth / 7;
-　　　　　　}
-            
-            // ★★★ 追加: 計算したサイズを画像の幅に適用します ★★★
-            gameOverFish.style.width = fishSize + 'px';
-            
-            // 画像が読み込めない場合のフォールバック（スコア別の色）
-            gameOverFish.onerror = function() {
-                console.log(`ゲームオーバー魚画像が見つかりません: ${fishImageSrc}`);
-                // SVGでフォールバック魚を作成（スコア別の色）
-                this.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 50">
-                    <ellipse cx="30" cy="25" rx="25" ry="15" fill="${fishColor}"/>
-                    <polygon points="55,25 70,15 70,35" fill="${fishColor}"/>
-                    <polygon points="10,20 0,10 5,25 0,40 10,30" fill="${fishColor}"/>
-                    <circle cx="20" cy="20" r="3" fill="black"/>
-                    <circle cx="18" cy="18" r="1" fill="white"/>
-                    ${gameState.score >= 300 ? '<circle cx="25" cy="25" r="2" fill="white" opacity="0.8"/>' : ''}
-                </svg>`;
-            };
-            
-            // 「ゲーム終了！」テキストと同じ高さに配置
-            const gameOverTitle = gameOverScreen.querySelector('h2');
-            const titleRect = gameOverTitle.getBoundingClientRect();
-            const screenRect = gameOverScreen.getBoundingClientRect();
-            const relativeTop = titleRect.top - screenRect.top;
-            
-            gameOverFish.style.position = 'absolute';
-            gameOverFish.style.top = relativeTop + 'px';
-            
-            gameOverScreen.appendChild(gameOverFish);
-            document.getElementById('gameOver').style.display = 'flex';
+function showGameOver() {
+    document.getElementById('finalScore').textContent = gameState.score;
+    
+    const summary = document.getElementById('catchSummary');
+    let summaryText = '<div style="margin-top: 10px; text-align: left; max-width: 300px; max-height: 200px; overflow-y: auto;">';
+    summaryText += '<h3 style="font-size: 16px; margin: 5px 0;">釣った魚:</h3>';
+    
+    if (Object.keys(gameState.fishCaught).length === 0) {
+        summaryText += '<p style="font-size: 14px; margin: 2px 0;">魚が釣れませんでした...</p>';
+    } else {
+        for (const [fishName, count] of Object.entries(gameState.fishCaught)) {
+            const fishType = fishTypes.find(f => f.name === fishName);
+            const totalPoints = count * fishType.points;
+            summaryText += `<p style="font-size: 14px; margin: 2px 0; line-height: 1.3;">${fishName}: ${count}匹 (${totalPoints}点)</p>`;
         }
+    }
+    summaryText += '</div>';
+    
+    summary.innerHTML = summaryText;
+    
+    // ★★★ 修正: 何も釣れなかった場合は魚の画像を表示しない ★★★
+    if (Object.keys(gameState.fishCaught).length > 0) {
+        // スコアによって画像を選択
+        let fishImageSrc, fishColor, altText;
+        if (gameState.score >= 1000) {
+            // 高スコア（1000点以上）
+            fishImageSrc = 'high_score.png';
+            fishColor = '#FFD700'; // 金色
+            altText = '高得点魚';
+        } else if (gameState.score >= 500) {
+            // 中スコア（500-1000点）
+            fishImageSrc = 'mid_score.png';
+            fishColor = '#C0C0C0'; // 銀色
+            altText = '中得点魚';
+        } else {
+            // 低スコア（499点以下）
+            fishImageSrc = 'low_score.png';
+            fishColor = '#CD7F32'; // 銅色
+            altText = '頑張れ魚';
+        }
+        
+        // ゲーム終了画面に泳ぐ魚を追加
+        const gameOverScreen = document.getElementById('gameOver');
+        const gameOverFish = document.createElement('img');
+        gameOverFish.className = 'game-over-fish';
+        gameOverFish.src = fishImageSrc;
+        gameOverFish.alt = altText;
+         
+        // デバイス別に画面サイズを調整
+        const screenWidth = window.innerWidth;
+        let fishSize;
+
+        if (screenWidth <= 768) {
+            // スマホ・小型タブレット: 画面幅の2分の1
+            fishSize = screenWidth / 2;
+        } else {
+            // タブレット・PC: 画面幅の7分の1に縮小
+            fishSize = screenWidth / 7;
+        }
+        
+        // ★★★ 追加: 計算したサイズを画像の幅に適用します ★★★
+        gameOverFish.style.width = fishSize + 'px';
+        
+        // 画像が読み込めない場合のフォールバック（スコア別の色）
+        gameOverFish.onerror = function() {
+            console.log(`ゲームオーバー魚画像が見つかりません: ${fishImageSrc}`);
+            // SVGでフォールバック魚を作成（スコア別の色）
+            this.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 50">
+                <ellipse cx="30" cy="25" rx="25" ry="15" fill="${fishColor}"/>
+                <polygon points="55,25 70,15 70,35" fill="${fishColor}"/>
+                <polygon points="10,20 0,10 5,25 0,40 10,30" fill="${fishColor}"/>
+                <circle cx="20" cy="20" r="3" fill="black"/>
+                <circle cx="18" cy="18" r="1" fill="white"/>
+                ${gameState.score >= 300 ? '<circle cx="25" cy="25" r="2" fill="white" opacity="0.8"/>' : ''}
+            </svg>`;
+        };
+        
+        // 「ゲーム終了！」テキストと同じ高さに配置
+        const gameOverTitle = gameOverScreen.querySelector('h2');
+        const titleRect = gameOverTitle.getBoundingClientRect();
+        const screenRect = gameOverScreen.getBoundingClientRect();
+        const relativeTop = titleRect.top - screenRect.top;
+        
+        gameOverFish.style.position = 'absolute';
+        gameOverFish.style.top = relativeTop + 'px';
+        
+        gameOverScreen.appendChild(gameOverFish);
+    }
+    
+    document.getElementById('gameOver').style.display = 'flex';
+      }
 
         function resetGame() {
             // ゲーム終了画面の泳ぐ魚を削除
