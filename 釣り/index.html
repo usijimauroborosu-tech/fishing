@@ -207,7 +207,19 @@
         'send_page_view': true   // ページビューのみ送信
        });
    </script>
-
+　　<script>
+  　　window.dataLayer = window.dataLayer || [];
+  　　function gtag(){dataLayer.push(arguments);}
+  　　gtag('js', new Date());
+  
+  　　// 基本設定（プライバシー保護設定はここに入れる）
+  　　gtag('config', 'GA_MEASUREMENT_ID', {
+   　　 // プライバシー保護設定済み
+   　　 anonymize_ip: true,                    // IP匿名化
+   　　 allow_google_signals: false,          // 広告機能無効
+    　　allow_ad_personalization_signals: false // パーソナライズ広告無効
+ 　　 });
+　　</script>
 </head>
 <body>
     <div class="game-container" id="gameContainer">
@@ -242,5 +254,6 @@
 </body>
 
 </html>
+
 
 
