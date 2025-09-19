@@ -46,7 +46,7 @@
             const maxX = container.clientWidth - 140;
             const containerHeight = container.clientHeight;
             const topQuarter = containerHeight / 8; // 上部1/8を除外
-            const maxY = containerHeight - 150;
+            const maxY = containerHeight - 170;
             const minY = topQuarter + 30; // 上部1/8より下に配置
             
             const newX = Math.random() * maxX;
@@ -96,7 +96,7 @@
             // 魚の初期位置（画面右側から出現、上部1/4を除外）
             const containerHeight = container.clientHeight;
             const topQuarter = containerHeight / 8; // 上部1/8に変更
-            const maxY = containerHeight - 150;
+            const maxY = containerHeight - 170;
             const minY = topQuarter + 30; // 上部1/8より下から出現
             
             fish.style.top = minY + Math.random() * (maxY - minY) + 'px';
@@ -446,25 +446,25 @@
             summaryText += '</div>';
             
             summary.innerHTML = summaryText;
-                
-            const gameOverScreen = document.getElementById('gameOver');
-                
-            // ★★★ 修正: 釣った魚がいる場合のみゲームオーバー魚を表示 ★★★
-            if (hasCaughtFish) {
-                let fishImageSrc, fishColor, altText;
-                if (gameState.score >= 1000) {
-                    fishImageSrc = 'high_score.png';
-                    fishColor = '#FFD700';
-                    altText = '高得点魚';
-                } else if (gameState.score >= 500) {
-                    fishImageSrc = 'mid_score.png';
-                    fishColor = '#C0C0C0';
-                    altText = '中得点魚';
-                } else {
-                    fishImageSrc = 'low_score.png';
-                    fishColor = '#CD7F32';
-                    altText = '頑張れ魚';
-                }
+            
+            // スコアによって画像を選択
+            let fishImageSrc, fishColor, altText;
+            if (gameState.score >= 1000) {
+                // 高スコア（1000点以上）
+                fishImageSrc = 'high_score.png';
+                fishColor = '#FFD700'; // 金色
+                altText = '高得点魚';
+            } else if (gameState.score >= 500) {
+                // 中スコア（500-1000点）
+                fishImageSrc = 'mid_score.png';
+                fishColor = '#C0C0C0'; // 銀色
+                altText = '中得点魚';
+            } else {
+                // 低スコア（499点以下）
+                fishImageSrc = 'low_score.png';
+                fishColor = '#CD7F32'; // 銅色
+                altText = '頑張れ魚';
+            }
             
             // ゲーム終了画面に泳ぐ魚を追加
             const gameOverScreen = document.getElementById('gameOver');
@@ -487,7 +487,6 @@
             
             // ★★★ 追加: 計算したサイズを画像の幅に適用します ★★★
             gameOverFish.style.width = fishSize + 'px';
-
             
             // 画像が読み込めない場合のフォールバック（スコア別の色）
             gameOverFish.onerror = function() {
@@ -606,5 +605,3 @@
             }
 
         });
-
-
