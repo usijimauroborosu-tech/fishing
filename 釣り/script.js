@@ -204,8 +204,20 @@
                 gameState.fishTimers.push(fishDeletionTimerId);
             } else {
                 // 通常魚は曲線移動（sin波を使った自然な動き）
-                const waveAmplitude = 15 + Math.random() * 20; // 波の振幅
-                const waveFrequency = 0.004 + Math.random() * 0.004; // 波の周波数
+                // デバイス別に曲線の振幅を調整
+                const screenWidth = window.innerWidth;
+                let baseAmplitude;
+                
+                if (screenWidth <= 768) {
+                    // スマホ・小型タブレット: 振幅を小さく
+                    baseAmplitude = 15 + Math.random() * 20; // 15-35px
+                } else {
+                    // タブレット・PC: 標準の振幅
+                    baseAmplitude = 30 + Math.random() * 40; // 30-70px
+                }
+                
+                const waveAmplitude = baseAmplitude;
+                const waveFrequency = 0.002 + Math.random() * 0.003; // 波の周波数
                 
                 function animateFish() {
                     if (!fish.parentNode || !gameState.isPlaying) {
@@ -461,11 +473,17 @@
             gameOverFish.src = fishImageSrc;
             gameOverFish.alt = altText;
              
-            // 画面サイズの2分の1に設定
-　　　　　　　　const screenWidth = window.innerWidth;
-　　　　　　　　const fishSize = screenWidth /2;
-　　　　　　　　gameOverFish.style.width = fishSize + 'px';
-　　　　　　　　gameOverFish.style.height = 'auto';   
+            // デバイス別に画面サイズを調整
+　　　　　　 const screenWidth = window.innerWidth;
+　　　　　　　let fishSize;
+
+　　　　　　　if (screenWidth <= 768) {
+   　　　　 // スマホ・小型タブレット: 画面幅の2分の1
+    　　　　fishSize = screenWidth / 2;
+　　　　　　} else {
+    　　　　// タブレット・PC: 画面幅の5分の1
+    　　　　fishSize = screenWidth / 5;
+　　　　　　}
             
             // 画像が読み込めない場合のフォールバック（スコア別の色）
             gameOverFish.onerror = function() {
@@ -584,6 +602,7 @@
             }
 
         });
+
 
 
 
